@@ -205,15 +205,15 @@ L'application intègre **3 écrans de données distincts** issus de collections 
 
 ## 🧪 Tests Unitaires de la Couche Repository
 
-Le projet comprend une suite complète de tests unitaires vérifiant la Clean Architecture, la couche repository et l'accès aux données locales Hive :
+Le projet comprend une suite complète de **43 tests unitaires et d'intégration UI** vérifiant la Clean Architecture, la couche repository et l'accès aux données locales Hive :
 
 1. **`test/repository_test.dart`** : Test d'intégration unitaire validant le comportement de tous les Repositories (Auth, Produits, Articles, Recettes) en mode en-ligne, basculement hors-ligne et gestion des erreurs.
-2. **`test/auth_repository_test.dart`** : Validation de `login`, `register`, `getSavedUser`, `logout` et `refreshToken`.
-3. **`test/product_repository_test.dart`** : Validation de `getProducts` (en-ligne, mise en cache, basculement hors-ligne, recherche) et `getProductById`.
-4. **`test/post_repository_test.dart`** : Validation de la récupération et de la mise en cache des articles avec fallback hors-ligne.
-5. **`test/recipe_repository_test.dart`** : Validation de la récupération et de la mise en cache des recettes avec fallback hors-ligne.
-6. **`test/local_data_source_test.dart`** : Tests unitaires dédiés à la logique d'accès aux données locales via les boîtes Hive.
-7. **`test/widget_test.dart`** : Test d'intégration de l'interface utilisateur.
+2. **`test/unit/auth_repository_test.dart`** : Validation de `login`, `register`, `getSavedUser`, `logout` et `refreshToken`.
+3. **`test/unit/product_repository_test.dart`** : Validation de `getProducts` (en-ligne, mise en cache, basculement hors-ligne, recherche) et `getProductById`.
+4. **`test/unit/post_repository_test.dart`** : Validation de la récupération et de la mise en cache des articles avec fallback hors-ligne.
+5. **`test/unit/recipe_repository_test.dart`** : Validation de la récupération et de la mise en cache des recettes avec fallback hors-ligne.
+6. **`test/unit/local_data_source_test.dart`** : Tests unitaires dédiés à la logique d'accès aux données locales via les boîtes Hive.
+7. **`test/widget_test.dart`** : Test d'intégration de l'interface utilisateur (`LoginScreen`).
 
 ### Exécution des tests :
 ```bash
