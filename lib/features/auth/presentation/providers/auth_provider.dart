@@ -4,6 +4,7 @@ import '../../domain/usecases/get_current_user_usecase.dart';
 import '../../domain/usecases/login_usecase.dart';
 import '../../domain/usecases/logout_usecase.dart';
 import '../../domain/usecases/register_usecase.dart';
+import '../../domain/usecases/refresh_token_usecase.dart';
 
 enum AuthStatus { uninitialized, authenticated, unauthenticated, loading }
 
@@ -12,6 +13,7 @@ class AuthProvider extends ChangeNotifier {
   final RegisterUseCase registerUseCase;
   final LogoutUseCase logoutUseCase;
   final GetCurrentUserUseCase getCurrentUserUseCase;
+  final RefreshTokenUseCase? refreshTokenUseCase;
 
   AuthStatus _status = AuthStatus.uninitialized;
   User? _currentUser;
@@ -22,6 +24,7 @@ class AuthProvider extends ChangeNotifier {
     required this.registerUseCase,
     required this.logoutUseCase,
     required this.getCurrentUserUseCase,
+    this.refreshTokenUseCase,
   });
 
   AuthStatus get status => _status;
@@ -87,6 +90,20 @@ class AuthProvider extends ChangeNotifier {
     _currentUser = null;
     _status = AuthStatus.unauthenticated;
     notifyListeners();
+  }
+
+  Future<bool> refreshToken() async {
+    if (refreshTokenUseCase == null) return false;
+    try {
+      _currentUser = await refreshTokenUseCase!();
+      _status = AuthStatus.authenticated;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _errorMessage = e.toString().replaceAll('AuthFailure: ', '').replaceAll('Exception: ', '');
+      notifyListeners();
+      return false;
+    }
   }
 
   void clearError() {

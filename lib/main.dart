@@ -28,6 +28,13 @@ import 'features/products/domain/usecases/get_product_details_usecase.dart';
 import 'features/products/domain/usecases/get_products_usecase.dart';
 import 'features/products/presentation/providers/product_provider.dart';
 
+import 'features/recipes/data/datasources/recipe_local_data_source.dart';
+import 'features/recipes/data/datasources/recipe_remote_data_source.dart';
+import 'features/recipes/data/repositories/recipe_repository_impl.dart';
+import 'features/recipes/domain/usecases/get_recipes_usecase.dart';
+import 'features/recipes/presentation/providers/recipe_provider.dart';
+import 'features/auth/domain/usecases/refresh_token_usecase.dart';
+
 import 'home_page.dart';
 
 void main() async {
@@ -52,6 +59,11 @@ void main() async {
   final postLocal = PostLocalDataSourceImpl(prefs: prefs);
   final postRepo = PostRepositoryImpl(remoteDataSource: postRemote, localDataSource: postLocal);
 
+  // Recipes dependencies (3rd REST Data Screen)
+  final recipeRemote = RecipeRemoteDataSourceImpl(dio: apiClient.dio);
+  final recipeLocal = RecipeLocalDataSourceImpl(prefs: prefs);
+  final recipeRepo = RecipeRepositoryImpl(remoteDataSource: recipeRemote, localDataSource: recipeLocal);
+
   runApp(
     MultiProvider(
       providers: [
@@ -61,6 +73,7 @@ void main() async {
             registerUseCase: RegisterUseCase(authRepo),
             logoutUseCase: LogoutUseCase(authRepo),
             getCurrentUserUseCase: GetCurrentUserUseCase(authRepo),
+            refreshTokenUseCase: RefreshTokenUseCase(authRepo),
           )..checkAuthStatus(),
         ),
         ChangeNotifierProvider(
@@ -72,6 +85,11 @@ void main() async {
         ChangeNotifierProvider(
           create: (_) => PostProvider(
             getPostsUseCase: GetPostsUseCase(postRepo),
+          ),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => RecipeProvider(
+            getRecipesUseCase: GetRecipesUseCase(recipeRepo),
           ),
         ),
       ],

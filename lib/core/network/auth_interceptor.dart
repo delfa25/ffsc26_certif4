@@ -23,9 +23,17 @@ class AuthInterceptor extends Interceptor {
       final refreshToken = prefs.getString(AppConstants.keyRefreshToken);
       if (refreshToken != null && refreshToken.isNotEmpty) {
         try {
-          // Attempt token refresh
-          final response = await dio.post(
-            '${AppConstants.baseUrl}/auth/refresh',
+          // Attempt token refresh using independent client to prevent interceptor loops
+          final refreshDio = Dio(
+            BaseOptions(
+              baseUrl: AppConstants.baseUrl,
+              connectTimeout: const Duration(seconds: 10),
+              receiveTimeout: const Duration(seconds: 10),
+            ),
+          );
+
+          final response = await refreshDio.post(
+            '/auth/refresh',
             data: {
               'refreshToken': refreshToken,
               'expiresInMins': 60,

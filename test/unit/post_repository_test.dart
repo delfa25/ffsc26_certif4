@@ -38,16 +38,13 @@ void main() {
 
   group('PostRepositoryImpl - getPosts', () {
     test('devrait retourner les articles distants et les sauvegarder en cache', () async {
-      // Arrange
       when(() => mockRemoteDataSource.getPosts())
           .thenAnswer((_) async => tPostList);
       when(() => mockLocalDataSource.cachePosts(tPostList))
           .thenAnswer((_) async => {});
 
-      // Act
       final result = await repository.getPosts();
 
-      // Assert
       expect(result.isCached, isFalse);
       expect(result.posts.length, equals(1));
       expect(result.posts.first.title, contains('His mother'));
@@ -56,19 +53,28 @@ void main() {
     });
 
     test('devrait charger les articles depuis le cache lors d\'une panne réseau', () async {
-      // Arrange
       when(() => mockRemoteDataSource.getPosts())
           .thenThrow(ServerException(message: 'Server error'));
       when(() => mockLocalDataSource.getCachedPosts())
           .thenAnswer((_) async => tPostList);
 
-      // Act
       final result = await repository.getPosts();
 
-      // Assert
       expect(result.isCached, isTrue);
       expect(result.posts.first.id, equals(1));
       verify(() => mockLocalDataSource.getCachedPosts()).called(1);
+    });
+
+    test('devrait lever CacheException si le réseau échoue et le cache est vide', () async {
+      when(() => mockRemoteDataSource.getPosts())
+          .thenThrow(ServerException(message: 'Server error'));
+      when(() => mockLocalDataSource.getCachedPosts())
+          .thenThrow(CacheException(message: 'Cache vide'));
+
+      expect(
+        () => repository.getPosts(),
+        throwsA(isA<CacheException>()),
+      );
     });
   });
 }

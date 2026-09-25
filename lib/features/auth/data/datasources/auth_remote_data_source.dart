@@ -7,6 +7,7 @@ abstract class AuthRemoteDataSource {
   Future<UserModel> login(String username, String password);
   Future<UserModel> register(String username, String email, String password);
   Future<UserModel> getCurrentUser(String token);
+  Future<Map<String, String>> refreshToken(String refreshToken);
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
@@ -83,6 +84,38 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       }
     } catch (e) {
       throw ServerException(message: 'Erreur lors de la récupération du profil');
+    }
+  }
+
+  @override
+  Future<Map<String, String>> refreshToken(String refreshToken) async {
+    try {
+      final response = await dio.post(
+        '/auth/refresh',
+        data: {
+          'refreshToken': refreshToken,
+          'expiresInMins': 60,
+        },
+      );
+
+      if (response.statusCode == 200 && response.data != null) {
+        final data = response.data as Map<String, dynamic>;
+        final newAccessToken = data['accessToken']?.toString() ?? '';
+        final newRefreshToken = data['refreshToken']?.toString() ?? refreshToken;
+        return {
+          'accessToken': newAccessToken,
+          'refreshToken': newRefreshToken,
+        };
+      } else {
+        throw ServerException(message: 'Impossible de rafraîchir le jeton');
+      }
+    } on DioException catch (e) {
+      if (e.response != null && e.response?.data != null && e.response?.data['message'] != null) {
+        throw ServerException(message: e.response?.data['message'].toString() ?? 'Erreur lors du rafraîchissement');
+      }
+      throw ServerException(message: 'Erreur réseau lors du rafraîchissement du jeton: ${e.message}');
+    } catch (e) {
+      throw ServerException(message: e.toString());
     }
   }
 }

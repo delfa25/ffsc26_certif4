@@ -38,6 +38,17 @@ class DummyAuthRepository implements AuthRepository {
 
   @override
   Future<void> logout() async {}
+
+  @override
+  Future<User> refreshToken() async => const User(
+        id: 1,
+        username: 'emilys',
+        email: 'emily@dummy.com',
+        firstName: 'Emily',
+        lastName: 'Johnson',
+        gender: 'female',
+        image: '',
+      );
 }
 
 void main() {

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'features/auth/presentation/screens/profile_screen.dart';
 import 'features/posts/presentation/screens/posts_screen.dart';
 import 'features/products/presentation/screens/products_screen.dart';
+import 'features/recipes/presentation/screens/recipes_screen.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -16,12 +17,14 @@ class _HomePageState extends State<HomePage> {
   final List<Widget> _screens = const [
     ProductsScreen(),
     PostsScreen(),
+    RecipesScreen(),
     ProfileScreen(),
   ];
 
   final List<String> _titles = const [
     'Catalogue Produits',
     'Flux d\'Articles',
+    'Recettes Gourmandes',
     'Mon Profil',
   ];
 
@@ -53,6 +56,11 @@ class _HomePageState extends State<HomePage> {
             icon: Icon(Icons.article_outlined),
             selectedIcon: Icon(Icons.article),
             label: 'Articles',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.restaurant_menu_outlined),
+            selectedIcon: Icon(Icons.restaurant_menu),
+            label: 'Recettes',
           ),
           NavigationDestination(
             icon: Icon(Icons.person_outline),

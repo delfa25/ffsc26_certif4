@@ -3,6 +3,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../utils/constants.dart';
 import 'auth_interceptor.dart';
 
+/// [ApiClient] centralise la configuration du client HTTP [Dio] pour l'ensemble de l'application.
+/// Il configure les timeouts, l'URL de base [AppConstants.baseUrl] et enregistre [AuthInterceptor]
+/// qui gère l'injection automatique du jeton JWT Bearer et le renouvellement transparent par Refresh Token.
 class ApiClient {
   final Dio dio;
 
@@ -14,3 +17,4 @@ class ApiClient {
     dio.interceptors.add(AuthInterceptor(prefs: prefs, dio: dio));
   }
 }
+
