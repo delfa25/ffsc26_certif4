@@ -16,9 +16,32 @@ class _PostsScreenState extends State<PostsScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final provider = context.read<PostProvider>();
       if (provider.state == PostState.initial) {
-        provider.fetchPosts();
+        _loadPosts(provider);
       }
     });
+  }
+
+  void _loadPosts(PostProvider provider) async {
+    await provider.fetchPosts();
+    if (!mounted) return;
+    if (provider.state == PostState.error) {
+      _showErrorSnackBar(provider);
+    }
+  }
+
+  void _showErrorSnackBar(PostProvider provider) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(provider.errorMessage ?? 'Erreur lors du chargement des articles'),
+        backgroundColor: Colors.redAccent,
+        behavior: SnackBarBehavior.floating,
+        action: SnackBarAction(
+          label: 'Réessayer',
+          textColor: Colors.white,
+          onPressed: () => _loadPosts(provider),
+        ),
+      ),
+    );
   }
 
   @override
@@ -50,7 +73,12 @@ class _PostsScreenState extends State<PostsScreen> {
 
           Expanded(
             child: RefreshIndicator(
-              onRefresh: () => provider.fetchPosts(showLoading: false),
+              onRefresh: () async {
+                await provider.fetchPosts(showLoading: false);
+                if (mounted && provider.state == PostState.error) {
+                  _showErrorSnackBar(provider);
+                }
+              },
               child: _buildBody(provider),
             ),
           ),
@@ -74,13 +102,13 @@ class _PostsScreenState extends State<PostsScreen> {
               const Icon(Icons.error_outline, size: 60, color: Colors.redAccent),
               const SizedBox(height: 16),
               Text(
-                provider.errorMessage ?? 'Une erreur est survenue',
+                provider.errorMessage ?? 'Une erreur est survenue lors du chargement des articles',
                 textAlign: TextAlign.center,
                 style: const TextStyle(fontSize: 16),
               ),
               const SizedBox(height: 16),
               ElevatedButton.icon(
-                onPressed: () => provider.fetchPosts(),
+                onPressed: () => _loadPosts(provider),
                 icon: const Icon(Icons.refresh),
                 label: const Text('Réessayer'),
               ),

@@ -19,9 +19,32 @@ class _ProductsScreenState extends State<ProductsScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final provider = context.read<ProductProvider>();
       if (provider.state == ProductState.initial) {
-        provider.fetchProducts();
+        _loadProducts(provider);
       }
     });
+  }
+
+  void _loadProducts(ProductProvider provider) async {
+    await provider.fetchProducts();
+    if (!mounted) return;
+    if (provider.state == ProductState.error) {
+      _showErrorSnackBar(provider);
+    }
+  }
+
+  void _showErrorSnackBar(ProductProvider provider) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(provider.errorMessage ?? 'Erreur lors du chargement des produits'),
+        backgroundColor: Colors.redAccent,
+        behavior: SnackBarBehavior.floating,
+        action: SnackBarAction(
+          label: 'Réessayer',
+          textColor: Colors.white,
+          onPressed: () => _loadProducts(provider),
+        ),
+      ),
+    );
   }
 
   @override
@@ -85,7 +108,12 @@ class _ProductsScreenState extends State<ProductsScreen> {
           // Content body
           Expanded(
             child: RefreshIndicator(
-              onRefresh: () => provider.fetchProducts(showLoading: false),
+              onRefresh: () async {
+                await provider.fetchProducts(showLoading: false);
+                if (mounted && provider.state == ProductState.error) {
+                  _showErrorSnackBar(provider);
+                }
+              },
               child: _buildBody(provider),
             ),
           ),
@@ -109,13 +137,13 @@ class _ProductsScreenState extends State<ProductsScreen> {
               const Icon(Icons.error_outline, size: 60, color: Colors.redAccent),
               const SizedBox(height: 16),
               Text(
-                provider.errorMessage ?? 'Une erreur est survenue',
+                provider.errorMessage ?? 'Erreur de connexion aux produits',
                 textAlign: TextAlign.center,
                 style: const TextStyle(fontSize: 16),
               ),
               const SizedBox(height: 16),
               ElevatedButton.icon(
-                onPressed: () => provider.fetchProducts(),
+                onPressed: () => _loadProducts(provider),
                 icon: const Icon(Icons.refresh),
                 label: const Text('Réessayer'),
               ),
