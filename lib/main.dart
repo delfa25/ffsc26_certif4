@@ -1,3 +1,4 @@
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -41,27 +42,34 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final prefs = await SharedPreferences.getInstance();
 
+  // Initialisation de Hive pour la mise en cache locale performante
+  await Hive.initFlutter();
+  final productsBox = await Hive.openBox('products_box');
+  final postsBox = await Hive.openBox('posts_box');
+  final recipesBox = await Hive.openBox('recipes_box');
+  final authBox = await Hive.openBox('auth_box');
+
   final dio = Dio();
   final apiClient = ApiClient(dioClient: dio, prefs: prefs);
 
   // Auth dependencies
   final authRemote = AuthRemoteDataSourceImpl(dio: apiClient.dio);
-  final authLocal = AuthLocalDataSourceImpl(prefs: prefs);
+  final authLocal = AuthLocalDataSourceImpl(prefs: prefs, box: authBox);
   final authRepo = AuthRepositoryImpl(remoteDataSource: authRemote, localDataSource: authLocal);
 
-  // Products dependencies
+  // Products dependencies (1er écran de données REST)
   final productRemote = ProductRemoteDataSourceImpl(dio: apiClient.dio);
-  final productLocal = ProductLocalDataSourceImpl(prefs: prefs);
+  final productLocal = ProductLocalDataSourceImpl(box: productsBox, prefs: prefs);
   final productRepo = ProductRepositoryImpl(remoteDataSource: productRemote, localDataSource: productLocal);
 
-  // Posts dependencies
+  // Posts dependencies (2e écran de données REST)
   final postRemote = PostRemoteDataSourceImpl(dio: apiClient.dio);
-  final postLocal = PostLocalDataSourceImpl(prefs: prefs);
+  final postLocal = PostLocalDataSourceImpl(box: postsBox, prefs: prefs);
   final postRepo = PostRepositoryImpl(remoteDataSource: postRemote, localDataSource: postLocal);
 
-  // Recipes dependencies (3rd REST Data Screen)
+  // Recipes dependencies (3e écran de données REST)
   final recipeRemote = RecipeRemoteDataSourceImpl(dio: apiClient.dio);
-  final recipeLocal = RecipeLocalDataSourceImpl(prefs: prefs);
+  final recipeLocal = RecipeLocalDataSourceImpl(box: recipesBox, prefs: prefs);
   final recipeRepo = RecipeRepositoryImpl(remoteDataSource: recipeRemote, localDataSource: recipeLocal);
 
   runApp(

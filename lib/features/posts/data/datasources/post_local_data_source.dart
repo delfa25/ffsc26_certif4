@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:hive/hive.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../core/errors/exceptions.dart';
 import '../../../../core/utils/constants.dart';
@@ -9,33 +10,47 @@ abstract class PostLocalDataSource {
   Future<List<PostModel>> getCachedPosts();
 }
 
+/// Implémentation du cache local pour les Articles avec [Hive] (et fallback SharedPreferences).
 class PostLocalDataSourceImpl implements PostLocalDataSource {
-  final SharedPreferences prefs;
+  final Box? box;
+  final SharedPreferences? prefs;
 
-  PostLocalDataSourceImpl({required this.prefs});
+  PostLocalDataSourceImpl({this.box, this.prefs});
 
   @override
   Future<void> cachePosts(List<PostModel> posts) async {
     try {
       final jsonList = posts.map((p) => p.toJson()).toList();
-      await prefs.setString(AppConstants.keyPostsCache, jsonEncode(jsonList));
+      final jsonString = jsonEncode(jsonList);
+      if (box != null && box!.isOpen) {
+        await box!.put(AppConstants.keyPostsCache, jsonString);
+      }
+      if (prefs != null) {
+        await prefs!.setString(AppConstants.keyPostsCache, jsonString);
+      }
     } catch (e) {
-      throw CacheException(message: 'Erreur de sauvegarde des articles en cache');
+      throw CacheException(message: 'Erreur de sauvegarde Hive des articles');
     }
   }
 
   @override
   Future<List<PostModel>> getCachedPosts() async {
-    final cachedData = prefs.getString(AppConstants.keyPostsCache);
-    if (cachedData != null && cachedData.isNotEmpty) {
-      try {
+    try {
+      String? cachedData;
+      if (box != null && box!.isOpen) {
+        cachedData = box!.get(AppConstants.keyPostsCache)?.toString();
+      }
+      if (cachedData == null && prefs != null) {
+        cachedData = prefs!.getString(AppConstants.keyPostsCache);
+      }
+      if (cachedData != null && cachedData.isNotEmpty) {
         final List<dynamic> decoded = jsonDecode(cachedData);
         return decoded.map((item) => PostModel.fromJson(item)).toList();
-      } catch (e) {
-        throw CacheException(message: 'Erreur de lecture des articles en cache');
       }
-    } else {
       throw CacheException(message: 'Aucun article en cache');
+    } catch (e) {
+      if (e is CacheException) rethrow;
+      throw CacheException(message: 'Erreur de lecture du cache Hive articles');
     }
   }
 }

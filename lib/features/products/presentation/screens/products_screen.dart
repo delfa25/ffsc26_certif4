@@ -29,6 +29,15 @@ class _ProductsScreenState extends State<ProductsScreen> {
     if (!mounted) return;
     if (provider.state == ProductState.error) {
       _showErrorSnackBar(provider);
+    } else if (provider.isCached && provider.userNotification != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(provider.userNotification!),
+          backgroundColor: Colors.amber.shade900,
+          behavior: SnackBarBehavior.floating,
+          duration: const Duration(seconds: 3),
+        ),
+      );
     }
   }
 
@@ -64,7 +73,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
           if (provider.isCached && provider.state == ProductState.loaded)
             Container(
               width: double.infinity,
-              color: Colors.amber.shade800,
+              color: Colors.amber.shade900,
               padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
               child: const Row(
                 children: [
@@ -72,7 +81,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
                   SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      'Mode hors-ligne : Affichage des données du cache local',
+                      'Mode hors-ligne : Produits affichés depuis le cache local Hive',
                       style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
                     ),
                   ),

@@ -26,6 +26,15 @@ class _RecipesScreenState extends State<RecipesScreen> {
     if (!mounted) return;
     if (provider.state == RecipeState.error) {
       _showErrorSnackBar(provider);
+    } else if (provider.isCached && provider.userNotification != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(provider.userNotification!),
+          backgroundColor: Colors.amber.shade900,
+          behavior: SnackBarBehavior.floating,
+          duration: const Duration(seconds: 3),
+        ),
+      );
     }
   }
 
@@ -55,7 +64,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
           if (provider.isCached && provider.state == RecipeState.loaded)
             Container(
               width: double.infinity,
-              color: Colors.amber.shade800,
+              color: Colors.amber.shade900,
               padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
               child: const Row(
                 children: [
@@ -63,7 +72,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
                   SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      'Mode hors-ligne : Recettes chargées depuis le cache local',
+                      'Mode hors-ligne : Recettes affichées depuis le cache local Hive',
                       style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
                     ),
                   ),

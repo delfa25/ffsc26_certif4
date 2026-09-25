@@ -1,0 +1,5 @@
+# Application Full-Stack Flutter — Certification Mobile (Master App Connectée)
+
+Application mobile Flutter complète connectée à une API REST réelle, développée selon les principes de la Clean Architecture. Le projet intègre une gestion complète de l'authentification JWT avec mécanisme de Refresh Token, trois écrans distincts de données distantes (Catalogue de Produits, Flux d'Articles et Recettes de Cuisine), la persistance locale ultra-rapide avec Hive (`hive_flutter`), un mode hors-ligne intelligent avec basculement automatique et bandeau d'avertissement visuel, la gestion avancée des erreurs réseau avec retours utilisateurs (SnackBars et écrans d'erreur interactifs), un client HTTP basé sur le package officiel `http` avec intercepteur personnalisé pour l'injection des jetons d'autorisation, ainsi qu'une suite de tests unitaires rigoureux sur la couche repository et l'accès aux données locales.
+
+Voir README.md pour la documentation exhaustive.

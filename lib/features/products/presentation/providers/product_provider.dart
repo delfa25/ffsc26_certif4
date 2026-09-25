@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/network/network_error_handler.dart';
 import '../../domain/entities/product.dart';
 import '../../domain/usecases/get_product_details_usecase.dart';
 import '../../domain/usecases/get_products_usecase.dart';
@@ -13,6 +14,7 @@ class ProductProvider extends ChangeNotifier {
   List<Product> _products = [];
   bool _isCached = false;
   String? _errorMessage;
+  String? _userNotification;
   String _searchQuery = '';
 
   ProductProvider({
@@ -23,7 +25,9 @@ class ProductProvider extends ChangeNotifier {
   ProductState get state => _state;
   List<Product> get products => _products;
   bool get isCached => _isCached;
+  bool get isOfflineMode => _isCached;
   String? get errorMessage => _errorMessage;
+  String? get userNotification => _userNotification;
   String get searchQuery => _searchQuery;
 
   Future<void> fetchProducts({String? query, bool showLoading = true}) async {
@@ -34,6 +38,7 @@ class ProductProvider extends ChangeNotifier {
     if (showLoading) {
       _state = ProductState.loading;
       _errorMessage = null;
+      _userNotification = null;
       notifyListeners();
     }
 
@@ -41,9 +46,14 @@ class ProductProvider extends ChangeNotifier {
       final result = await getProductsUseCase(query: _searchQuery);
       _products = result.products;
       _isCached = result.isCached;
+      if (result.isCached) {
+        _userNotification = NetworkErrorHandler.getOfflineNotificationMessage(feature: 'Produits');
+      } else {
+        _userNotification = null;
+      }
       _state = ProductState.loaded;
     } catch (e) {
-      _errorMessage = e.toString().replaceAll('CacheException: ', '').replaceAll('Exception: ', '');
+      _errorMessage = NetworkErrorHandler.getErrorMessage(e);
       _state = ProductState.error;
     }
     notifyListeners();
@@ -52,5 +62,10 @@ class ProductProvider extends ChangeNotifier {
   void search(String query) {
     _searchQuery = query;
     fetchProducts(query: query, showLoading: false);
+  }
+
+  void clearNotification() {
+    _userNotification = null;
+    notifyListeners();
   }
 }

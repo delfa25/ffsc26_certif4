@@ -1,5 +1,5 @@
 name: ffsc26_certif4
-description: "A new Flutter project."
+description: "Application mobile Flutter complète connectée à une API REST réelle avec Clean Architecture, authentification JWT, gestion du refresh token, intercepteur réseau, mise en cache locale Hive, mode hors-ligne automatique et tests unitaires complets."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -33,8 +33,11 @@ dependencies:
 
   cupertino_icons: ^1.0.8
   dio: ^5.4.3
+  http: ^1.2.0
   provider: ^6.1.2
   shared_preferences: ^2.2.3
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
 
 dev_dependencies:
   flutter_test:
