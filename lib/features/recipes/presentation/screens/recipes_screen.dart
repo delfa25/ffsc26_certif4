@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../../../core/widgets/offline_banner.dart';
 import '../providers/recipe_provider.dart';
 
 class RecipesScreen extends StatefulWidget {
@@ -62,23 +63,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
         children: [
           // Offline Banner
           if (provider.isCached && provider.state == RecipeState.loaded)
-            Container(
-              width: double.infinity,
-              color: Colors.amber.shade900,
-              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-              child: const Row(
-                children: [
-                  Icon(Icons.wifi_off, color: Colors.white, size: 18),
-                  SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      'Mode hors-ligne : Recettes affichées depuis le cache local Hive',
-                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            const OfflineBanner(featureName: 'Recettes'),
 
           Expanded(
             child: RefreshIndicator(

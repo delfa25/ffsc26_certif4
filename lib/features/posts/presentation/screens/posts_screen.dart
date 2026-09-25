@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../../../core/widgets/offline_banner.dart';
 import '../providers/post_provider.dart';
 
 class PostsScreen extends StatefulWidget {
@@ -62,23 +63,7 @@ class _PostsScreenState extends State<PostsScreen> {
         children: [
           // Offline Banner
           if (provider.isCached && provider.state == PostState.loaded)
-            Container(
-              width: double.infinity,
-              color: Colors.amber.shade900,
-              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-              child: const Row(
-                children: [
-                  Icon(Icons.wifi_off, color: Colors.white, size: 18),
-                  SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      'Mode hors-ligne : Articles affichés depuis le cache local Hive',
-                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            const OfflineBanner(featureName: 'Articles'),
 
           Expanded(
             child: RefreshIndicator(
